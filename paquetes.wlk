@@ -14,7 +14,7 @@ object paquetonViajero {
     method pagarParcialmente(pago) {
         cantidadPagada += pago
     }
-    method puedeSerLlevadoPorMensajero(mensajero) = destinos.forEach({d => d.mensajeroPuedePasar(mensajero)}) and self.estaPago() 
+    method puedeSerLlevadoPorMensajero(mensajero) = destinos.all({d => d.mensajeroPuedePasar(mensajero)}) and self.estaPago() 
 }
 
 
