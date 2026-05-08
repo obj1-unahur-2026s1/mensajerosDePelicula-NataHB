@@ -1,9 +1,110 @@
-import example.pepita
+import destinos.*
+import empresa.*
+import mensajeros.*
+import transportes.*
+import paquetes.*
 
-describe "group of tests for pepita" {
 
-  test "pepita has initial energy" {
-    assert.equals(100, pepita.energy())
+describe "group of tests for empresaMensajeria" {
+
+  test "roberto puede llevar un paquete pagado en un camion"{
+    roberto.cambiarTransporte(camion)
+    camion.cambiarCantAcoplados(1)
+    paquete.pagarPaquete()
+    assert.that(roberto.puedeEntregar_A_(paquete, puenteBrooklyn))
+  }
+  
+  test "neo con credito no puede llevar un paquete que no esta pago a la matrix"{
+    assert.that(neo.puedeLlamar())
+    assert.notThat(neo.puedeEntregar_A_(paquete, laMatrix))
   }
 
+  test "contratar un mensajero" {
+    assert.that(empresaMensajeria.mostrarMensajeros().size() == 0)
+    empresaMensajeria.contratarMensajero(roberto)
+    assert.that(empresaMensajeria.mostrarMensajeros().size() == 1)
+  }
+
+  test "despedir un mensajero" {
+    empresaMensajeria.contratarMensajero(roberto)
+    assert.that(empresaMensajeria.mostrarMensajeros().size() == 1)
+    empresaMensajeria.despedirMensajero(roberto)
+    assert.that(empresaMensajeria.mostrarMensajeros().size() == 0)
+  }
+
+  test "despedir a todos los mensajeros" {
+    empresaMensajeria.contratarMensajero(roberto)
+    empresaMensajeria.contratarMensajero(chuckNorris)
+    assert.that(empresaMensajeria.mostrarMensajeros().size() == 2)
+    empresaMensajeria.despedirATodos()
+    assert.that(empresaMensajeria.mostrarMensajeros().size() == 0)
+  }
+
+  test "la mensajeria es grande" {
+    assert.notThat(empresaMensajeria.mensajeriaEsGrande())
+    empresaMensajeria.contratarMensajero(roberto)
+    empresaMensajeria.contratarMensajero(chuckNorris)
+    assert.notThat(empresaMensajeria.mensajeriaEsGrande())
+    empresaMensajeria.contratarMensajero(neo)
+    assert.that(empresaMensajeria.mensajeriaEsGrande())
+  }
+
+  test "el primer mensajero puede entregar un paquete" {
+    empresaMensajeria.contratarMensajero(roberto)
+    assert.notThat(empresaMensajeria.paquetePuedeSerEntregadoPorElPrimerMensajero(paquete, puenteBrooklyn))
+    paquete.pagarPaquete()
+    assert.that(empresaMensajeria.paquetePuedeSerEntregadoPorElPrimerMensajero(paquete, puenteBrooklyn))
+  }
+
+  test "el ultimo peso del mensajero" {
+    empresaMensajeria.contratarMensajero(roberto)
+    assert.that(empresaMensajeria.ultimoPesoMensajero() == roberto.peso())
+    empresaMensajeria.contratarMensajero(chuckNorris)
+    assert.that(empresaMensajeria.ultimoPesoMensajero() == chuckNorris.peso())
+  }
+
+  test "puede ser llevado por la empresa" {
+    empresaMensajeria.contratarMensajero(roberto)
+    paquete.pagarPaquete()
+    assert.that(empresaMensajeria.puedeSerLlevadoPorEmpresa(paquete))
+  }
+
+  test "mensajeros que pueden llevar un paquete" {
+    empresaMensajeria.contratarMensajero(roberto)
+    empresaMensajeria.contratarMensajero(chuckNorris)
+    paquete.pagarPaquete()
+    assert.that(empresaMensajeria.mensajerosQuePuedenLlevarPaquete(paquete).size() == 2)
+  }
+
+  test "hacer que una empresa envie un paquete" {
+    empresaMensajeria.contratarMensajero(roberto)
+    paquete.pagarPaquete()
+    empresaMensajeria.enviarPaquete(paquete)
+    assert.that(empresaMensajeria.mostrarPaquetesEnviados().size() == 1)
+  }
+
+  test "hacer que una empresa envie un paquete que no puede ser llevado" {
+    empresaMensajeria.contratarMensajero(roberto)
+    paquetonViajero.agregarDestino(puenteBrooklyn)
+    paquetonViajero.agregarDestino(laMatrix)
+    assert.notThat(empresaMensajeria.puedeSerLlevadoPorEmpresa(paquetonViajero))
+    empresaMensajeria.enviarPaquete(paquetonViajero)
+    assert.that(empresaMensajeria.mostrarPaquetesPendientes().size() == 1)
+  }
+
+  test "conocer la facturacion de la empresa" {
+    empresaMensajeria.contratarMensajero(roberto)
+    paquete.pagarPaquete()
+    empresaMensajeria.enviarPaquete(paquete)
+    assert.that(empresaMensajeria.facturacionDeLaEmpresa() == paquete.precio())
+  }
+
+  test "encontrar el paquete pendiente mas caro" {
+    empresaMensajeria.contratarMensajero(roberto)
+    paquetonViajero.agregarDestino(puenteBrooklyn)
+    paquetonViajero.agregarDestino(laMatrix)
+    paquetonViajero.pagarPaquete()
+    empresaMensajeria.enviarPaquete(paquetonViajero)
+    assert.that(empresaMensajeria.paquetePendienteMasCaro().precio() == paquetonViajero.precio())
+  }
 }

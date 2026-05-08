@@ -1,25 +1,28 @@
 object paquetito {
-    method precio() = 0
     method estaPago() = true 
+    method precio() = 0
     method puedeSerLlevadoPorMensajero(mensajero) = true 
 }
 
 object paquetonViajero {
-    const destinos = []
+    const property destinos = []
     // suponiendo que no se pasarian del precio y pagarian exactamente su valor
-    var property estaPago = cantidadPagada == self.precio()
+    var estaPago = cantidadPagada == self.precio()
     var cantidadPagada = 0
 
+    method agregarDestino(destino) { destinos.add(destino) }
+    method estaPago() = estaPago
     method precio() = 100 * destinos.size()
-    method pagarParcialmente(pago) {
-        cantidadPagada += pago
-    }
-    method puedeSerLlevadoPorMensajero(mensajero) = destinos.all({d => d.mensajeroPuedePasar(mensajero)}) and self.estaPago() 
+    method pagarParcialmente(pago) { cantidadPagada += pago }
+    method pagarPaquete() { estaPago = true }
+    method puedeSerLlevadoPorMensajero(mensajero) = destinos.all({d => mensajero.puedeEntregar_A_(self, d)}) and self.estaPago() 
 }
 
 
-object paqueton {
+object paquete {
+    var estaPago = false
+    method estaPago() = estaPago
+    method pagarPaquete() { estaPago = true }
     method precio() = 50
-    method estaPago() = true 
     method puedeSerLlevadoPorMensajero(mensajero) = true
 }
